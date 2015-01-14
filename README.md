@@ -13,7 +13,9 @@ Kopioi konversiopaketti päätteellesi esimerkiksi "Download ZIP" -painikkeesta.
 PALAUTE
 
 marc-posti (at) helsinki.fi
+
 =================
+
 DESCRIPTION
 
 A USEMARCON rule for converting bibliographic records from FINMARC(98) to MARC 21 format. 
