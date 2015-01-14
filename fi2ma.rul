@@ -1,13 +1,12 @@
 FINMARC(98) bibliographic to MARC 21 bibliographic
-versio 11.7.2014 - Kansalliskirjasto
+versio 1.11.2011 - Kansalliskirjasto
 
 
 #define macro Pvalimerkitys()         | If (PreviousSubIn(S, $p, '=1') = 'n') ReplaceOcc ('$p' By ',$p', '=1') Else ReplaceOcc ('$p' By '.$p', '=1'); \
                                         If (PreviousSubIn(S, $p, '=2') = 'n') ReplaceOcc ('$p' By ',$p', '=2') Else ReplaceOcc ('$p' By '.$p', '=2'); \
                                         If (PreviousSubIn(S, $p, '=3') = 'n') ReplaceOcc ('$p' By ',$p', '=3') Else ReplaceOcc ('$p' By '.$p', '=3')
 
-#define macro ISBNRegExp              | (RegFind('^[\\dxX]{10}( \\(.*\\))?\$') >= 0 Or RegFind('^[\\dxX\\-]{13}( \\(.*\\))?\$') >= 0 Or RegFind('^\\d{13}( \\(.*\\))?\$') >= 0 Or RegFind('^[\\d\\-]{17}( \\(.*\\))?\$') >= 0 \
-                                        Or RegFind('^[\\d+-\\d+-] >= 0))
+#define macro ISBNRegExp              | (RegFind('^[\\dxX]{10}( \\(.*\\))?\$') >= 0 Or RegFind('^[\\dxX\\-]{13}( \\(.*\\))?\$') >= 0 Or RegFind('^\\d{13}( \\(.*\\))?\$') >= 0 Or RegFind('^[\\d\\-]{17}( \\(.*\\))?\$') >= 0)
 
 #define macro KirjastotunnusISILiksi  | S; \
                                         RegReplace('^[Ff][Ii]-?', ''); \
@@ -86,33 +85,6 @@ versio 11.7.2014 - Kansalliskirjasto
 008/24/         | 007/1-2/        | If (S = 'y') Then 'ou'
 #endif
 
-// 336- ja 337-kent�t
-#if (@000/7/ = 'a' or @000/7/ = 't') And Not (Exists(@245$z))
-008/24/		| 336(new)$a	  | If (S = 'f') Then 'Teksti (kosketeltava)' Else 'Teksti'
-008/24/		| 337(new)$a	  | If (S = 'a' or S = 'b') Then 'mikromuoto'
-008/24/		| 337(new)$a	  | If (S = 'm') Then 'elektroninen'
-008/24/		| 337(new)$a	  | If (S != 'a' And S != 'b' And S != 'm') Then 'ei välittävää laitetta'
-#endif
-
-#if (@000/7/ = 'a' or @000/7/ = 't') And (Exists(@245$z))
-245$z		| 336(new)$a	  | If (RegFind ('nite') >=0) Then 'Puhe'
-245$z		| 337(new)$a	  | If (RegFind ('nite') >=0) Then 'audio'
-245$z           | 336(new)$a      | If (RegFind ('[Nn]uottijulkaisu') >=0) Then 'Musiikki (notatoitu)'
-245$z           | 337(new)$a      | If (RegFind ('[Nn]uottijulkaisu') >=0) Then 'ei välittävää laitetta'
-245$z           | 336(new)$a      | If (RegFind ('[Vv]ideo') >=0) Then 'Kuva (liikkuva ; kaksiulotteinen)'
-245$z           | 337(new)$a      | If (RegFind ('[Vv]ideo') >=0) Then 'video'
-245$z           | 336(new)$a      | If (RegFind ('[Hh]eijastuskuva') >=0) Then 'Kuva (still)'
-245$z           | 337(new)$a      | If (RegFind ('[Hh]eijastuskuva') >=0) Then 'heijastettava'
-245$z           | 336(new)$a      | If (RegFind ('[Kk]artta-aineisto') >=0) Then 'Kuva (kartografinen)'
-245$z           | 337(new)$a      | If (RegFind ('[Kk]artta-aineisto') >=0) Then 'ei välittävää laitetta'
-245$z           | 336(new)$a      | If (RegFind ('[Mm]ikro') >=0) Then 'Teksti'
-245$z           | 337(new)$a      | If (RegFind ('[Mm]ikro') >=0) Then 'mikromuoto'
-245$z           | 336(new)$a      | If (RegFind ('[Ee]lektroninen') >=0) Then 'Teksti'
-245$z           | 337(new)$a      | If (RegFind ('[Ee]lektroninen') >=0) Then 'elektroninen'
-245$z           | 336(new)$a      | If (RegFind ('\\b[Kk]uva') >=0) Then 'Kuva (still)'
-245$z           | 337(new)$a      | If (RegFind ('\\b[Kk]uva') >=0) Then 'ei välittävää laitetta'
-#endif
-
 // Moniviestin, muutos 000/06=m (BK) -> 000/06=o (VM)
 #if (@000/7/ = 'm')
 008/23/         | 008/23/         | Table ('008-22-kohderyhma.tbl')
@@ -141,12 +113,6 @@ versio 11.7.2014 - Kansalliskirjasto
 008/24/         | 007/1-2/        | If (S = 'y') Then 'ou'
 #endif
 
-// 336- ja 337-kent�t
-#if (000/07/ = 'm') or (RegFind(@245$z, '[Mm]oniviestin') >= 0)
-000/07/		| 336(new)$a	  | 'Useita sisältötyyppejä'
-000/07/		| 337(new)$a	  | 'useita välittäviä laitteita'
-#endif
-
 // 008 (CR) CONTINUING RESOURCES = JATKUVAT JULKAISUT
 #if (@000/7-8/ = 'ab' Or @000/7-8/ = 'as')
 008/19/         | 008/19/         | Table ('008-18-CR-ilmestymistiheys.tbl')
@@ -166,19 +132,6 @@ versio 11.7.2014 - Kansalliskirjasto
 008/24/         | 007/1-14/       | If (S = 'v') Then 'su|||||||||||'
 008/24/         | 007/1-2/        | If (S = ' ') Then 'tu'
 008/24/         | 007/2/          | If ((S = 'm' Or S = 't' Or S = 's' Or S = 'i') And InTable(S, '008-23-CR-ilmiasu-to-007-01.tbl')) Then Table ('008-23-CR-ilmiasu-to-007-01.tbl')
-
-// 336- ja 337-kent�t
-008/24/         | 336(new)$a      | If (S = 'a') Then 'Teksti'
-008/24/         | 337(new)$a      | If (S = 'a') Then 'mikromuoto'
-008/24/         | 336(new)$a      | If (S = 'f') Then 'Teksti (kosketeltava)'
-008/24/         | 337(new)$a      | If (S = 'f') Then 'ei välittävää laitetta'
-008/24/         | 336(new)$a      | If (S = 'g') Then 'Kuva (still)'
-008/24/         | 337(new)$a      | If (S = 'g') Then 'ei välittävää laitetta'
-008/24/         | 336(new)$a      | If (S = 'm' Or S = 't' Or S = 's' Or S = 'i') Then 'Teksti'
-008/24/         | 337(new)$a      | If (S = 'm' Or S = 't' Or S = 's' Or S = 'i') Then 'elektroninen'
-008/24/         | 336(new)$a      | If (S = 'v') Then 'Puhe' // Onko muuta mahdollisuutta?
-008/24/         | 337(new)$a      | If (S = 'v') Then 'audio'
-
 008/25/         | 655(new)I1      | If (InTable(S, '008-24-CR-muototermi.tbl')) Then ' '
 008/25/         | 655(newest)I2   | If (InTable(S, '008-24-CR-muototermi.tbl')) Then '7'
 008/25/         | 655(newest)$a   | If (InTable(S, '008-24-CR-muototermi.tbl')) Then Table('008-24-CR-muototermi.tbl')
@@ -210,7 +163,6 @@ versio 11.7.2014 - Kansalliskirjasto
 008/29/         | 008/29/         | Table ('008-28-virallisjulkaisut.tbl')
 008/31/         | 500(new)$a      | If (InTable(S, '008-29-MP-kartan-teksti.tbl')) Then Table ('008-29-MP-kartan-teksti.tbl')
 008/32/         | 008/32/         | Table ('008-31-MP-sijaintihakemisto.tbl')
-
 // 008 --> 007
 008/26/         | 007/1-6/        | If (S = 'd') Then 'du||||'
 008/26/         | 007/1-6/        | If (S = 'e') Then 'ad||||'
@@ -219,14 +171,6 @@ versio 11.7.2014 - Kansalliskirjasto
 008/30/         | 007/4/          | S; Replace ('b' By 'c');
                                     Replace (' ' By '|')
 008/33/         | 007/5/          | Table ('007-04-a-valmistusmateriaali.tbl')
-
-// 336- ja 337-kent�t
-008/26/         | 336(new)$a      | If (S != 'd') Then 'Kuva (kartografinen)'
-008/26/         | 336(new)$a      | If (S = 'd') Then 'Esine (kartografinen)'
-008/27/         | 337(new)$a      | If (S = 'd') or (RegFind(@300$a, '[Mm]ikrofil') >=0) or (RegFind(@300$a, '[Mm]ikrokortt') >=0) or (RegFind(@245$z, '[Mm]ikro') >=0) Then 'mikromuoto'
-008/27/         | 337(new)$a      | If (S = 'f') or (RegFind(@245$z, '[Ee]lektr') >=0) Then 'elektroninen'
-008/27/		| 337(new)$a	  | If (S != 'd' And S != 'f') And (RegFind(@245$z, '[Mm]ikro') <0) And (RegFind(@245$z, '[Ee]lektr') <0) And (RegFind(@300, '[Mm]ikro') <0) Then 'ei välittävää laitetta'
-
 #endif
 
 // 008 (MU) MUSIC = MUSIIKKI
@@ -256,28 +200,6 @@ versio 11.7.2014 - Kansalliskirjasto
 008/35/         | 007/9/          | If (Not ((@000/7/ = 'c' Or @000/7/ = 'd') And (S = ' ') Or (S = 'd'))) Then Table ('007-08-s-raitojen-maara.tbl')
 008/36/         | 007/10/         | If (Not ((@000/7/ = 'c' Or @000/7/ = 'd') And (S = ' ') Or (S = 'd'))) Then S; Replace (' ' By '|')
 008/37/         | 007/13/         | If (Not ((@000/7/ = 'c' Or @000/7/ = 'd') And (S = ' ') Or (S = 'd'))) Then S; Replace (' ' By '|')
-#endif
-
-// 336- ja 337-kent�t
-
-// musiikki��nite
-#if (@000/7/ = 'j')
-000		| 336(new)$a	  | If (RegFind(@652, 'nikirja') >=0) Then 'Puhe' Else 'Musiikki (esitetty)'
-008/24-25/	| 337(new)$a	  | If (@008/24/ = 'm') or (@008/25/ = 'm') Then 'elektroninen' Else 'audio'
-#endif
-
-// puhe��nite
-#if (@000/7/ = 'i')
-000		| 336(new)$a	  | 'Puhe'
-008/24-25/	| 337(new)$a	  | If (@008/24/ = 'm') or (@008/25/ = 'm') Then 'elektroninen' Else 'audio'
-#endif
-
-// nuottijulkaisu ja nuottik�sikirjoitus
-#if (@000/7/ = 'c' Or @000/7/ = 'd')
-008/24-25/      | 336(new)$a      | If (@008/24/ = 'f') Or (@008/25/ = 'f') Then 'Musiikki (notatoitu ; kosketeltava)' Else 'Musiikki (notatoitu)'
-008/24-25/      | 337(new)$a      | If (@008/24/ = 'a' or @008/24/ = 'b' Or @008/25/ = 'a' or @008/25/ = 'b') Then 'mikromuoto'
-008/24-25/      | 337(new)$a      | If (@008/24/ = 'm' Or @008/25/ = 'm') Then 'elektroninen'
-008/24-25/	| 337(new)$a	  | If Not (@008/24/ = 'm' Or @008/25/ = 'm' Or @008/24/ = 'a' or @008/24/ = 'b' Or @008/25/ = 'a' or @008/25/ = 'b') Then 'ei välittävää laitetta'
 #endif
 
 // 007 (sd) ��nilevy
@@ -434,33 +356,6 @@ versio 11.7.2014 - Kansalliskirjasto
 008/24/         | 007/1-2/        | 'ou'
 #endif
 
-// 336- ja 337-kent�t
-
-// Esine
-#if (@000/7/ = 'r')
-000/7/		| 336(new)$a	  | 'Esine'
-000/7/		| 337(new)$a	  | 'ei välittävää laitetta'
-#endif
-
-// Kuva
-#if (@000/7/ = 'k')
-000/7/		| 336(new)$a	  | 'Kuva (still)'
-008/24/		| 337(new)$a	  | If (S = 'c' or S = 'd') Then 'mikromuoto'
-008/24/		| 337(new)$a	  | If (S = 'm') or (RegFind(@245$z, '[Vv]erkkoaine') >=0) Then 'elektroninen'
-008/24/		| 337(new)$a	  | If (S != 'c' And S != 'd' And S = 'm') or Not (Exists(@245$z)) Then 'ei välittävää laitetta'
-#endif
-
-// Liikkuva kuva
-#if (@000/7/ = 'g') or (RegFind(@245$z, '[Vv]ideo') >= 0)
-000/7/		| 336(new)$a	  | 'Kuva (liikkuva ; kaksiulotteinen)'
-000/7/		| 337(new)$a	  | 'video'
-#endif
-
-// Heijastettava kuva
-#if (000/7/ = 'g' or 000/7/ = 'h' or 000/7/ = 'k' or 000/7/ = 'r') and (008/24/ = 'a' or 008/24/ = 'b') or (RegFind(@245$z, '[Hh]eijastuskuva') >= 0)
-000/7/		| 336(new)$a	  | 'Kuva (still)'
-000/7/		| 337(new)$a	  | 'heijastettava'
-#endif
 
 
 // 008 (AM) ARCHIVAL MATERIALS = ARKISTOAINEISTO
@@ -479,26 +374,6 @@ versio 11.7.2014 - Kansalliskirjasto
 008/24/         | 007/1-2/        | If (S = 'r') Then 'qu'
 008/24/         | 007/1-14/       | If (S = 'v') Then 'su|||||||||||'
 008/24/         | 007/2/          | If (InTable(S, '008-23-AM-ilmiasu-to-007-01.tbl')) Then Table ('008-23-AM-ilmiasu-to-007-01.tbl')
-
-// 336- ja 337-kent�t
-008/24/		| 336(new)$a	  | If (S = 'a' Or S = 'b') Then 'Määrittelemätön sisältötyyppi'
-008/24/		| 337(new)$a	  | If (S = 'a' Or S = 'b') Then 'heijastettava'
-008/24/         | 336(new)$a      | If (S = 'c' Or S = 'd') Then 'Määrittelemätön sisältötyyppi'
-008/24/		| 337(new)$a	  | If (S = 'c' Or S = 'd') Then 'mikromuoto'
-008/24/         | 336(new)$a      | If (S = 'f') Then 'Teksti (kosketeltava)'
-008/24/         | 337(new)$a      | If (S = 'f') Then 'ei välittävää laitetta'
-008/24/         | 336(new)$a      | If (S = 'j' Or S = 'l') Then 'Kuva (still)'
-008/24/         | 337(new)$a      | If (S = 'j' Or S = 'l') Then 'ei välittävää laitetta'
-008/24/         | 336(new)$a      | If (S = 'm' Or S = 'o') Then 'Määrittelemätön sisältötyyppi'
-008/24/         | 337(new)$a      | If (S = 'm' Or S = 'o') Then 'elektroninen'
-008/24/         | 336(new)$a      | If (S = 'n') Then 'Kuva (liikkuva ; kaksiulotteinen)'
-008/24/         | 337(new)$a      | If (S = 'n') Then 'video'
-008/24/         | 336(new)$a      | If (S = 'q') Then 'Kuva (kartografinen)'
-008/24/         | 337(new)$a      | If (S = 'q') Then 'ei välittävää laitetta'
-008/24/         | 336(new)$a      | If (S = 'r') Then 'Musiikki (notatoitu)'
-008/24/         | 337(new)$a      | If (S = 'r') Then 'ei välittävää laitetta'
-008/24/         | 336(new)$a      | If (S = 'v') Then 'Määrittelemätön sisältötyyppi'
-008/24/         | 337(new)$a      | If (S = 'v') Then 'audio'
 #endif
 
 // 008 (CF) COMPUTER FILES = ELEKTRONINEN AINEISTO
@@ -540,18 +415,6 @@ versio 11.7.2014 - Kansalliskirjasto
 008/24/         | 007/2/          | Table ('008-23-CF-ilmiasu-to-007.tbl')
 #endif
 
-// 336- ja 337-kent�t
-
-#if (@000/7/ = 'l')
-008/22/         | 336(new)$a      | If (S = 'a' or S = 'c') Then 'Data'
-008/22/         | 336(new)$a      | If (S = 'b' or S = 'f' or S = 'g' or S = 'j') Or (RegFind(@300, 'CD-ROM') >=0) Then 'Tietokoneohjelma'
-008/22/         | 336(new)$a      | If (S = 'd' or S = 'e') Then 'Teksti'
-008/22/         | 336(new)$a      | If (S = 'h') Then 'Ääni'
-008/22/         | 336$a           | If (S = 'm' or S = 'i') Then 'Useita sisältötyyppejä' // S��nt� korvaa mahdollisen 'CD-ROM'-fraasin perusteella luodun kent�n 336$a 'Tietokoneohjelma'
-008/22/         | 336(new)$a      | If (S = 'u' or S = 'z' or S = ' ' or S = '|') And (RegFind(@300, 'CD-ROM') <0) Then 'Määrittelemätön sisältötyyppi'
-000/7/          | 337(new)$a      | 'elektroninen'
-#endif
-
 // *** VAIHTUVAMITTAISET KENT�T ***
 
 
@@ -568,8 +431,7 @@ versio 11.7.2014 - Kansalliskirjasto
 021I1             | <P20I1          | ' '
 021I2             | <P20I2          | ' '
 021$a             | <P20$a          | S
-021$c             | <P20$a          | If ISBNRegExp And Not Exists (021$a) Then S
-021$c             | <P20$q          | If Not ISBNRegExp Then S
+021$c             | <P20$a          | +' (' +S +')'
 021$d             | <P20$c          | S
 021$e             | <P20$c          | If Exists ($d) Then ($d+', ' + S) Else S
 021$z             | <P20$z          | S
@@ -599,8 +461,7 @@ P20               | 020(new)        | S;
 #if (Exists(@028$e))
 028$e           | 028(new)I1      | If (@000/7/ = 'g') Then '4' Else '0'
 028$e           | 028(newest)I2   | '1'
-028(1)$e        | 028(newest)$b   | If Exists(@028(1)$a) Then @028(1)$a Else @260(1)$b
-028(2)$e        | 028(newest)$b   | If Exists(@028(2)$a) Then @028(2)$a Else @260(1)$b
+028$e           | 028(newest)$b   | If Exists(@028$a) Then @028$a Else @260$b
 028$e           | 028(newest)$a   | S; If (Exists(@028$d)) S + ' (' + @028$d + ')'
 #endif
 
@@ -618,12 +479,9 @@ P20               | 020(new)        | S;
 028$c           | 028(newest)$a   | S; If (Exists(@028$d)) S + ' (' + @028$d + ')'
 #endif
 
-029$a(1)        | 024(nto)$a      | S
-029I1           | 024(nto)I1      | '3'
-029I2           | 024(nto)I2      | ' '
-029$a(2)        | 024(nto)$a      | S
-029I1           | 024(nto)I1      | '3'
-029I2           | 024(nto)I2      | ' '
+029I1           | 024(new)I1      | '3'
+029I2           | 024(newest)I2   | ' '
+029$a           | 024(newest)$a   | S
 029$c           | 024(newest)$a   | +' (' +S +')'
 
 //Oletuksena Allfons-numero konvertoidaan kenttään 972.  Vaihtoehtona on kenttä 024 8_.
@@ -667,7 +525,7 @@ P20               | 020(new)        | S;
 
 041I1           | 041I1           | If (I1=' ') Then '0' Else S
 041I2           | 041I2           | ' '
-041$a/1-3/(n=1) | 008/36-38/      | Lower(S); If (n=1) Then Table ('041-kielikoodit.tbl')
+041$a/1-3/(n=1) | 008/36-38/      | If (n=1) Then Table ('041-kielikoodit.tbl') 
 041$a           | <D41$a(no)      | Sto(0); RegFind('^(.{1,3})'); RegMatch(1); Redo; Mem(0); From(4)
 041$a           | <D41$d(no)      | Sto(0); RegFind('^(.{1,3})'); RegMatch(1); Redo; Mem(0); From(4)
 041$b           | <D41$b(no)      | Sto(0); RegFind('^(.{1,3})'); RegMatch(1); Redo; Mem(0); From(4)
@@ -782,8 +640,7 @@ D41$h           | 041$h           | Table('041-kielikoodit.tbl'); Replace ('$x' 
                                     Replace ('-' By '$x-');
                                     Replace ('=' By '$x=');
                                     Replace ('"' By '$x"');
-                                    Replace ('*' By '$x*');
-                                    RegReplace('[Uu][Dd][Kk]:', '')
+                                    Replace ('*' By '$x*')
 
 081$a           | <AAF(new)$a(nt) | S
 AAF             | 084(new)        | S + '$2kssb'
@@ -831,7 +688,7 @@ AAD             | 084(new)        | S + '$2rubbk'
 098$a           | <AAE(newest)$a(nt) | S
 AAEI1           | 084(new)I1      | S
 AAEI2           | 084(newest)I2   | S
-AAE             | 084(newest)     | S + '$2ykl'; RegReplace('[Yy][Kk][Ll]:', '')
+AAE             | 084(newest)     | S + '$2ykl'
 //Info: 098-kentt� hyllyluokituksena voidaan lis�ksi konvertoida sijaintikentt��n 852 $h.  Osakentt��n $a konvertoidaan kirjaston ISIL-tunnus.
 
 
@@ -1227,7 +1084,7 @@ G90             | 490(newest)     | S;
 
 G90I1           | 810(new)I1      | If (S = '1') Then '1' Else If ((S = '2' Or S = ' ') And (RegFind(@110$a, ', ') >= 0)) Then '0' Else '2'
 G90I2           | 810(newest)I2   | ' '
-G90             | 810(newest)     | S + '.';
+G90             | 810(newest)     | S;
                                     Replace ('$c' By '.$b');
                                     Replace ('$g' By '.$n');
                                     Replace ('$h' By ',$p');
@@ -1317,14 +1174,14 @@ I40             | 490(newest)     | S;
 
 I40I1           | 830(new)I1      | ' '
 I40I2           | 830(newest)I2   | S
-I40             | 830(newest)     | If (RegFind('[\\)\\.\\]]\$') < 0) Then S + '.' Else S;
+I40             | 830(newest)     | S;
                                     Replace ('$b' By ' : ', Strict);
                                     Replace ('$d' By ' / ', Strict);
                                     Replace ('$f' By ' / ', Strict);
                                     Replace ('$n' By '.$n', Strict);
                                     Replace ('$p' By ',$p', Strict);
                                     Replace ('$r' By ' = ', Strict);
-                                    Replace ('$w' By ',$x');
+                                    Replace ('$x' By ',$x');
                                     Replace ('$v' By ' ;$v');
                                     RegReplaceTable ('pieni-isoksi-pisteen-jalkeen.tbl', 'g')
 
@@ -1470,7 +1327,6 @@ J34             | 534             | If (RegFind('\\.\$') < 0) Then S + '.' Else 
 
 539$a           | 500(new)$a      | If (RegFind('\\.\$') < 0) Then 'Nimekkeen selitys: ' + S + '.' Else 'Nimekkeen selitys: ' + S
 
-#if (Not Exists (@440)) And (Not Exists (@490))
 
 540I1           | <J30I1          | ' '
 540I2           | <J30I2          | '0' 
@@ -1491,7 +1347,6 @@ J30             | 830(newest)     | If (RegFind('[\\)\\.\\]]\$') < 0) Then S + '
                                     Replace ('$v' By ' ;$v', Strict);
                                     MoveBefore('x', $v);
                                     Replace ('$x' By ',$x', Strict)
-#endif
 
 541I1           | 541I1           | ' '
 541I2           | 541I2           | ' '
